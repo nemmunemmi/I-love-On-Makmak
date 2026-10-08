@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ดีใจที่ได้รักแกนะ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Prompt & Itim & Mali -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Itim&family=Mali:wght@400;500;600&family=Prompt:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f7f5f0;
+            background-image: radial-gradient(#d1cfc9 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: #4a4a4a;
+        }
+
+        .font-handwriting {
+            font-family: 'Itim', 'Mali', cursive;
+        }
+
+        /* SVG Curved Rope */
+        .rope-svg {
+            width: 100%;
+            height: 50px;
+            overflow: visible;
+        }
+
+        /* Photo Frame Hanging Container */
+        .photo-hanger {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            max-width: 380px;
+            margin: 0 auto;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-hanger:hover {
+            transform: scale(1.02) rotate(0.5deg);
+        }
+
+        /* Clips - Peg attached tightly onto image frame */
+        .clip-peg {
+            position: absolute;
+            top: -12px;
+            width: 14px;
+            height: 26px;
+            background: linear-gradient(to right, #8a8885, #b8b6b1, #787673);
+            border-radius: 3px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+            z-index: 30;
+        }
+        .clip-peg::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 2px;
+            right: 2px;
+            height: 2px;
+            background: #555;
+            box-shadow: 0 10px 0 #555;
+        }
+
+        .clip-left { left: 18%; }
+        .clip-right { right: 18%; }
+
+        /* Hanging strings connecting main rope to clips */
+        .hanging-string {
+            position: absolute;
+            top: -38px;
+            width: 1.5px;
+            height: 38px;
+            background-color: #8c887b;
+            border-left: 1px dashed #615e55;
+            z-index: 10;
+        }
+        .string-left { left: calc(18% + 6px); }
+        .string-right { right: calc(18% + 6px); }
+
+        /* Photo Frame Style - Fixed Aspect Ratio & Prevent Distortion */
+        .polaroid-card {
+            background-color: #1a1a1a;
+            padding: 12px 12px 16px 12px;
+            border-radius: 4px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            position: relative;
+            z-index: 20;
+            width: 100%;
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+        .polaroid-card:hover {
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.35);
+        }
+        .polaroid-card img, .polaroid-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+
+        /* Interactive Envelope Structure */
+        .envelope-wrapper {
+            perspective: 1000px;
+        }
+
+        .envelope {
+            position: relative;
+            width: 100%;
+            max-width: 460px;
+            height: 280px;
+            background-color: #e3decb;
+            border-radius: 8px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            margin: 0 auto;
+            cursor: pointer;
+            transition: transform 0.4s ease;
+            overflow: hidden;
+        }
+
+        .envelope:hover {
+            transform: translateY(-5px);
+        }
+
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 230px solid transparent;
+            border-right: 230px solid transparent;
+            border-top: 130px solid #d4ceba;
+            transform-origin: top;
+            transition: transform 0.6s ease;
+            z-index: 3;
+        }
+
+        .envelope.open .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .wax-seal {
+            position: absolute;
+            top: 105px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 44px;
+            height: 44px;
+            background: radial-gradient(circle, #b85b5b 0%, #8b3a3a 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f7e7ce;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            z-index: 4;
+            transition: opacity 0.4s ease;
+        }
+
+        .envelope.open .wax-seal {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Blur Overlay Effect for Locked Cards */
+        .blur-text {
+            filter: blur(8px);
+            user-select: none;
+            pointer-events: none;
+            transition: filter 0.5s ease;
+        }
+
+        .unlocked .blur-text {
+            filter: blur(0);
+            user-select: auto;
+            pointer-events: auto;
+        }
+
+        /* Cute Washi Tape Effect */
+        .washi-tape {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-1deg);
+            width: 90px;
+            height: 22px;
+            background-color: rgba(243, 229, 215, 0.7);
+            border-left: 2px dashed rgba(210, 180, 140, 0.4);
+            border-right: 2px dashed rgba(210, 180, 140, 0.4);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            z-index: 25;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-10 px-4 md:px-8">
+
+    <!-- Audio Control Button -->
+    <div class="fixed top-5 right-5 z-50">
+        <button id="bgmToggle" onclick="toggleMusic()" class="bg-white/80 backdrop-blur-md hover:bg-white text-gray-700 font-medium px-4 py-2 rounded-full shadow-md transition flex items-center gap-2 border border-gray-200 text-sm font-handwriting">
+            <span id="musicIcon">🎵</span>
+            <span id="musicText">เปิดเพลงคู่ชีวิต</span>
+        </button>
+        <audio id="bgm" loop src="music.mp3"></audio>
+    </div>
+
+    <!-- Header Section -->
+    <header class="text-center max-w-2xl mx-auto mt-6 mb-12">
+        <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase">Memory Archive</span>
+        <h1 class="text-3xl md:text-5xl font-bold text-gray-800 mt-2 tracking-tight">ดีใจที่ได้รักแกนะ</h1>
+        <p class="text-gray-500 mt-3 text-sm md:text-base font-light">การเดินทางของความทรงจำและทุกๆ ช่วงเวลาที่เราเติบโตมาด้วยกัน</p>
+        <div class="w-12 h-0.5 bg-gray-300 mx-auto mt-4"></div>
+    </header>
+
+    <!-- Main Content: Photo Timeline Section (30 Media Items / 15 Lines matching actual filenames) -->
+    <main class="max-w-5xl mx-auto space-y-20">
+
+        <!-- ROW 1 (1 & 2) -->
+        <div class="relative pt-6">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,10 Q 250,38 500,15 T 1000,20" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image1.mp4')"><video src="image1.mp4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+                <div class="text-center md:mt-10"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image2.mp4')"><video src="image2.mp4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 2 (3 & 4) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,20 Q 250,5 500,25 T 1000,10" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image3.mp4')"><video src="image3.mp4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+                <div class="text-center md:mt-8"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image4.MP4')"><video src="image4.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 3 (5 & 6) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,15 Q 250,35 500,10 T 1000,25" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image5.MP4')"><video src="image5.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+                <div class="text-center md:mt-10"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image6.MP4')"><video src="image6.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 4 (7 & 8) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,25 Q 250,10 500,30 T 1000,15" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center md:mt-6"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image7.MP4')"><video src="image7.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image8.MP4')"><video src="image8.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 5 (9 & 10) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,12 Q 250,40 500,18 T 1000,22" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image9.MP4')"><video src="image9.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+                <div class="text-center md:mt-8"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image10.MP4')"><video src="image10.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 6 (11 & 12) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,22 Q 250,8 500,28 T 1000,12" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center md:mt-6"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image11.MP4')"><video src="image11.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image12.MP4')"><video src="image12.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 7 (13 & 14 - JPG) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,14 Q 250,36 500,12 T 1000,24" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image13.JPG')"><img src="image13.JPG" alt="13" class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></div></div></div>
+                <div class="text-center md:mt-10"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image14.JPG')"><img src="image14.JPG" alt="14" class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 8 (15 & 16 - MP4) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,24 Q 250,6 500,26 T 1000,14" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center md:mt-8"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image15.MP4')"><video src="image15.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image16.MP4')"><video src="image16.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 9 (17 & 18 - MP4) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,10 Q 250,38 500,16 T 1000,20" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image17.MP4')"><video src="image17.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+                <div class="text-center md:mt-10"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image18.MP4')"><video src="image18.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 10 (19 & 20 - JPG) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,20 Q 250,10 500,30 T 1000,12" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center md:mt-6"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image19.JPG')"><img src="image19.JPG" alt="19" class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></div></div></div>
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image20.JPG')"><img src="image20.JPG" alt="20" class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 11 (21 & 22 - MP4 & JPG) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,16 Q 250,34 500,14 T 1000,22" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image21.MP4')"><video src="image21.MP4" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+                <div class="text-center md:mt-10"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image22.JPG')"><img src="image22.JPG" alt="22" class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 12 (23 & 24 - JPG) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,22 Q 250,8 500,28 T 1000,12" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center md:mt-8"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image23.JPG')"><img src="image23.JPG" alt="23" class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></div></div></div>
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image24.JPG')"><img src="image24.JPG" alt="24" class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 13 (25 & 26 - MOV) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,12 Q 250,38 500,18 T 1000,22" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image25.MOV')"><video src="image25.MOV" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+                <div class="text-center md:mt-10"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image26.MOV')"><video src="image26.MOV" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 14 (27 & 28 - MOV & JPG) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,24 Q 250,10 500,30 T 1000,16" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center md:mt-6"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image27.MOV')"><video src="image27.MOV" autoplay loop muted playsinline class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></video></div></div></div>
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image28.JPG')"><img src="image28.JPG" alt="28" class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></div></div></div>
+            </div>
+        </div>
+
+        <!-- ROW 15 (29 & 30 - JPG) -->
+        <div class="relative">
+            <svg class="rope-svg" viewBox="0 0 1000 50" preserveAspectRatio="none"><path d="M 0,18 Q 250,32 500,12 T 1000,26" fill="none" stroke="#a39f93" stroke-width="2" stroke-dasharray="6,4"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 px-4 -mt-6">
+                <div class="text-center"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image29.JPG')"><img src="image29.JPG" alt="29" class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></div></div></div>
+                <div class="text-center md:mt-10"><div class="photo-hanger"><div class="hanging-string string-left"></div><div class="hanging-string string-right"></div><div class="clip-peg clip-left"></div><div class="clip-peg clip-right"></div><div class="polaroid-card" onclick="openLightbox('image30.JPG')"><img src="image30.JPG" alt="30" class="grayscale contrast-125 hover:grayscale-0 transition duration-500"></div></div></div>
+            </div>
+        </div>
+
+        <!-- Section: Message Cards (Soft Warm Memory Journal Style) -->
+        <section class="max-w-3xl mx-auto pt-10">
+            <div class="bg-[#fcfaf7] p-6 md:p-10 rounded-3xl shadow-lg border border-amber-100/80 relative">
+                
+                <div class="flex items-center gap-2 mb-8 font-handwriting">
+                    <span class="text-xl">💌</span>
+                    <h2 class="text-xl font-medium text-amber-900/80 tracking-wide">ความรู้สึกจากหัวใจเนม</h2>
+                </div>
+
+                <!-- 3 Locked Message Cards -->
+                <div class="space-y-8 font-handwriting">
+
+                    <!-- Card 1 -->
+                    <div id="card1" class="relative bg-[#f8f5ee] border border-amber-200/60 rounded-2xl p-6 shadow-sm overflow-hidden transition-all duration-300">
+                        <div class="washi-tape"></div>
+                        <div class="flex items-center gap-2 mb-3 pt-1">
+                            <span class="text-lg">🤍</span>
+                            <h3 class="font-semibold text-stone-700 text-base md:text-lg">สิ่งที่อยากขอบคุณ</h3>
+                        </div>
+                        <div class="blur-text transition-all">
+                            <p class="text-stone-600 text-base md:text-lg leading-relaxed">
+                                "ขอบคุณที่มาทำให้รู้ว่าความรักที่ดีเป็นยังไงนะอ้วนอ้อน 5-6 ปีที่ได้รักกันมานี้เนมมีความสุขจนล้นมากจริงๆ ขอบคุณที่ทำให้เนมทุกอย่างเลย อ้อนเป็นแฟนที่ดีที่สุด ตามใจ ดูแล เทคแคร์เนมเสมอมา"
+                            </p>
+                        </div>
+                        <div id="lockOverlay1" class="absolute inset-0 bg-[#f8f5ee]/85 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center z-10 transition-opacity">
+                            <div class="max-w-xs w-full bg-white/90 p-5 rounded-2xl shadow-sm border border-amber-100">
+                                <span class="text-3xl mb-1 block">🔐</span>
+                                <p class="text-sm font-medium text-amber-900/80">คำใบ้รหัส: วันเกิดเนม</p>
+                                <p class="text-xs text-stone-400 mb-3">(ตัวอย่าง : xx/xx/25xx)</p>
+                                <div class="flex gap-2">
+                                    <input type="text" id="pass1" placeholder="DD/MM/YYYY" class="w-full text-sm px-3 py-2 bg-amber-50/50 border border-amber-200/80 rounded-xl focus:outline-none focus:border-rose-300 text-center text-stone-700">
+                                    <button onclick="checkPassword(1, '03/11/2550')" class="bg-rose-400/90 hover:bg-rose-500 text-white text-sm px-4 py-2 rounded-xl transition shadow-sm active:scale-95">เปิดดู</button>
+                                </div>
+                                <p id="err1" class="text-xs text-rose-400 mt-2 hidden">รหัสไม่ถูกต้อง ลองใหม่อีกครั้งนะ</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div id="card2" class="relative bg-[#f8f5ee] border border-amber-200/60 rounded-2xl p-6 shadow-sm overflow-hidden transition-all duration-300">
+                        <div class="washi-tape"></div>
+                        <div class="flex items-center gap-2 mb-3 pt-1">
+                            <span class="text-lg">✨</span>
+                            <h3 class="font-semibold text-stone-700 text-base md:text-lg">สิ่งที่ประทับใจที่สุด</h3>
+                        </div>
+                        <div class="blur-text transition-all">
+                            <p class="text-stone-600 text-base md:text-lg leading-relaxed">
+                                "ใจจริงอยากให้อ้อนเป็นคู่ชีวิตของเนมเลยนะ เพราะเนมได้รู้ว่าเพอร์เฟคเป็นแบบไหน ทำไมเนมถึงอยากปล่อยไปหละ เนมคิดไปไกลมากเลย เนมได้ดูน้องซัมเมอร์แล้วเนมอยากมีลูกเลย5555 ดูทุเรศมากเลยแต่เนมอยากมีอนาคตแบบนั้นกับอ้อนจริงๆ เนมดีใจมากๆ ที่ได้คบกับอ้อน มันไม่สามารถหาแบบนี้ได้อีกแล้วแน่ๆ"
+                            </p>
+                        </div>
+                        <div id="lockOverlay2" class="absolute inset-0 bg-[#f8f5ee]/85 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center z-10 transition-opacity">
+                            <div class="max-w-xs w-full bg-white/90 p-5 rounded-2xl shadow-sm border border-amber-100">
+                                <span class="text-3xl mb-1 block">🔐</span>
+                                <p class="text-sm font-medium text-amber-900/80">คำใบ้รหัส: วันเกิดอ้อน</p>
+                                <p class="text-xs text-stone-400 mb-3">(ตัวอย่าง : xx/xx/25xx)</p>
+                                <div class="flex gap-2">
+                                    <input type="text" id="pass2" placeholder="DD/MM/YYYY" class="w-full text-sm px-3 py-2 bg-amber-50/50 border border-amber-200/80 rounded-xl focus:outline-none focus:border-rose-300 text-center text-stone-700">
+                                    <button onclick="checkPassword(2, '20/06/2550')" class="bg-rose-400/90 hover:bg-rose-500 text-white text-sm px-4 py-2 rounded-xl transition shadow-sm active:scale-95">เปิดดู</button>
+                                </div>
+                                <p id="err2" class="text-xs text-rose-400 mt-2 hidden">รหัสไม่ถูกต้อง ลองใหม่อีกครั้งนะ</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div id="card3" class="relative bg-[#f8f5ee] border border-amber-200/60 rounded-2xl p-6 shadow-sm overflow-hidden transition-all duration-300">
+                        <div class="washi-tape"></div>
+                        <div class="flex items-center gap-2 mb-3 pt-1">
+                            <span class="text-lg">🕊️</span>
+                            <h3 class="font-semibold text-stone-700 text-base md:text-lg">สิ่งที่อยากบอกเมื่อสายไปแล้ว</h3>
+                        </div>
+                        <div class="blur-text transition-all">
+                            <p class="text-stone-600 text-base md:text-lg leading-relaxed">
+                                "และถ้าเนมทำอะไรไม่ดีกับอ้อนไว้เนมก็อยากขอโทษและปรับปรุง ถึงแม้ตอนนี้มันสายไปแล้ว แต่เนมก็ได้ปรับปรุงมันแล้วนะ เนมไม่มีทางให้มันเกิดขึ้นแบบนั้นอีกรอบแน่นอนหละ ถ้าเนมมีโอกาสเนมจะไม่ปล่อยไปอีกแล้ว"
+                            </p>
+                        </div>
+                        <div id="lockOverlay3" class="absolute inset-0 bg-[#f8f5ee]/85 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center z-10 transition-opacity">
+                            <div class="max-w-xs w-full bg-white/90 p-5 rounded-2xl shadow-sm border border-amber-100">
+                                <span class="text-3xl mb-1 block">🔐</span>
+                                <p class="text-sm font-medium text-amber-900/80">คำใบ้รหัส: วันครบกันตอนที่เราคบกันม.ต้น</p>
+                                <p class="text-xs text-stone-400 mb-3">(ตัวอย่าง : xx/xx/25xx)</p>
+                                <div class="flex gap-2">
+                                    <input type="text" id="pass3" placeholder="DD/MM/YYYY" class="w-full text-sm px-3 py-2 bg-amber-50/50 border border-amber-200/80 rounded-xl focus:outline-none focus:border-rose-300 text-center text-stone-700">
+                                    <button onclick="checkPassword(3, '20/11/2550')" class="bg-rose-400/90 hover:bg-rose-500 text-white text-sm px-4 py-2 rounded-xl transition shadow-sm active:scale-95">เปิดดู</button>
+                                </div>
+                                <p id="err3" class="text-xs text-rose-400 mt-2 hidden">รหัสไม่ถูกต้อง ลองใหม่อีกครั้งนะ</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Names Signature -->
+                <div class="pt-8 mt-6 border-t border-amber-100 flex flex-col md:flex-row justify-between text-sm text-stone-500 gap-2 font-handwriting">
+                    <div>ถึง: <span class="font-medium text-stone-700">อ้อน วราลักษณ์ มะลัยสิทธิ์</span></div>
+                    <div>จาก: <span class="font-medium text-stone-700">เนม วิชยุตม์ มณีเนตร</span></div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section: Interactive Letter Envelope -->
+        <section class="max-w-xl mx-auto pt-10 pb-16 text-center">
+            <h3 class="text-lg font-medium text-gray-700 mb-6 font-handwriting">จดหมายเชิญถึงอ้อน</h3>
+
+            <div class="envelope-wrapper">
+                <div id="envelope" class="envelope" onclick="openLetter()">
+                    <div class="envelope-flap"></div>
+                    <div class="wax-seal">💌</div>
+                    <div class="absolute inset-0 flex flex-col items-center justify-end pb-12 px-6 text-gray-700">
+                        <span class="text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-1">Invitation</span>
+                        <p class="font-semibold text-base md:text-lg text-gray-800">Our Last Meet</p>
+                        <p class="text-xs text-gray-500 mt-1">Invited by Nem Vitchayut to On Waralak</p>
+                        <p class="text-[11px] text-rose-500/80 mt-3 animate-pulse">(คลิกเพื่อเปิดซองจดหมาย)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Opened Letter Content -->
+            <div id="letterContent" class="hidden mt-8 bg-white p-6 md:p-8 rounded-2xl shadow-2xl border border-amber-100 max-w-lg mx-auto text-left animate-fade-in">
+                <div class="border-b border-gray-100 pb-4 mb-4">
+                    <span class="text-xs font-semibold text-rose-500 uppercase tracking-wider">Invitation</span>
+                    <h4 class="text-xl font-bold text-gray-800 mt-1">Our Last Meet</h4>
+                    <p class="text-xs text-gray-400 mt-0.5">Nem Vitchayut & Waralak Malaisit</p>
+                </div>
+
+                <p class="text-gray-700 text-sm md:text-base leading-relaxed mb-6 font-handwriting">
+                    ขอเชิญชวนอ้อนมาเจอกัน 5 วันสุดท้าย<br>
+                    <span class="font-semibold text-gray-900 bg-amber-50 px-2.5 py-1 rounded border border-amber-200/60 inline-block mt-2">
+                        วันที่ 31 ตุลาคม 2569 ถึง 4 พฤศจิกายน 2569
+                    </span>
+                </p>
+
+                <!-- Poster Image Area -->
+                <div class="mt-4">
+                    <p class="text-xs text-gray-400 mb-2 font-handwriting">โปสเตอร์กิจกรรม:</p>
+                    <div class="rounded-lg overflow-hidden border border-gray-200 shadow-sm cursor-pointer" onclick="openLightbox('poster.jpg')">
+                        <img src="poster.jpg" onerror="this.src='https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800&auto=format&fit=crop'" alt="Poster Our Last Meet" class="w-full h-auto object-cover hover:scale-102 transition duration-300">
+                    </div>
+                </div>
+
+                <div class="mt-6 text-right">
+                    <button onclick="closeLetter()" class="text-xs text-gray-400 hover:text-gray-600 underline font-handwriting">พับเก็บจดหมาย</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-gray-400 py-8 border-t border-gray-200/60 mt-12">
+        <p>สร้างด้วยความตั้งใจ โดย เนม วิชยุตม์ มณีเนตร</p>
+    </footer>
+
+    <!-- Lightbox Modal for Enlarging Images & Videos -->
+    <div id="lightbox" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex flex-col items-center justify-center p-4" onclick="closeLightbox()">
+        <div class="relative max-w-4xl max-h-[85vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+            <div id="lightboxMediaContainer" class="max-w-full max-h-[80vh] flex items-center justify-center"></div>
+            <p class="text-white/70 text-xs text-center mt-3 font-handwriting">คลิกที่ใดก็ได้ภายนอกเพื่อปิด</p>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        function checkPassword(cardNumber, correctPass) {
+            const inputVal = document.getElementById(`pass${cardNumber}`).value.trim();
+            const errEl = document.getElementById(`err${cardNumber}`);
+            const cardEl = document.getElementById(`card${cardNumber}`);
+            const overlayEl = document.getElementById(`lockOverlay${cardNumber}`);
+
+            if (inputVal === correctPass) {
+                errEl.classList.add('hidden');
+                cardEl.classList.add('unlocked');
+                overlayEl.style.opacity = '0';
+                setTimeout(() => {
+                    overlayEl.style.display = 'none';
+                }, 300);
+            } else {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        function toggleMusic() {
+            const audio = document.getElementById('bgm');
+            const icon = document.getElementById('musicIcon');
+            const text = document.getElementById('musicText');
+
+            if (audio.paused) {
+                audio.play();
+                icon.textContent = '⏸️';
+                text.textContent = 'หยุดเพลง';
+            } else {
+                audio.pause();
+                icon.textContent = '🎵';
+                text.textContent = 'เปิดเพลงคู่ชีวิต';
+            }
+        }
+
+        function openLetter() {
+            const envelope = document.getElementById('envelope');
+            const letterContent = document.getElementById('letterContent');
+
+            envelope.classList.add('open');
+            setTimeout(() => {
+                letterContent.classList.remove('hidden');
+                letterContent.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 400);
+        }
+
+        function closeLetter() {
+            const envelope = document.getElementById('envelope');
+            const letterContent = document.getElementById('letterContent');
+
+            letterContent.classList.add('hidden');
+            envelope.classList.remove('open');
+        }
+
+        // Updated Smart Lightbox to support .mp4, .mov (as video) and .jpg (as image)
+        function openLightbox(src) {
+            const lightbox = document.getElementById('lightbox');
+            const mediaContainer = document.getElementById('lightboxMediaContainer');
+            
+            mediaContainer.innerHTML = '';
+
+            const lowerSrc = src.toLowerCase();
+            const isVideo = lowerSrc.endsWith('.mp4') || lowerSrc.endsWith('.mov');
+
+            if (isVideo) {
+                const video = document.createElement('video');
+                video.src = src;
+                video.controls = true;
+                video.autoplay = true;
+                video.className = 'max-w-full max-h-[80vh] rounded-lg shadow-2xl object-contain';
+                mediaContainer.appendChild(video);
+            } else {
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = 'Enlarged Media';
+                img.className = 'max-w-full max-h-[80vh] rounded-lg shadow-2xl object-contain';
+                img.onerror = function() {
+                    this.src = 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=800&auto=format&fit=crop';
+                };
+                mediaContainer.appendChild(img);
+            }
+
+            lightbox.classList.remove('hidden');
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            const mediaContainer = document.getElementById('lightboxMediaContainer');
+            
+            const video = mediaContainer.querySelector('video');
+            if (video) {
+                video.pause();
+            }
+            
+            lightbox.classList.add('hidden');
+            mediaContainer.innerHTML = '';
+        }
+    </script>
+</body>
+</html>
